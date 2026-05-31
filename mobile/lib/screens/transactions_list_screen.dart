@@ -50,8 +50,19 @@ class _TransactionsListScreenState extends State<TransactionsListScreen> {
       // Detect if the amount has a negative sign (leading or trailing)
       bool hasNegativeSign = trimmedAmount.startsWith('-') || trimmedAmount.endsWith('-');
 
-      // Remove all non-numeric characters except decimal point and minus sign
-      String numericString = trimmedAmount.replaceAll(RegExp(r'[^\d.\-]'), '');
+      // Remove all non-numeric characters except digits, dot, comma, and minus sign
+      String numericString = trimmedAmount.replaceAll(RegExp(r'[^\d.,\-]'), '');
+
+      int lastComma = numericString.lastIndexOf(',');
+      int lastDot = numericString.lastIndexOf('.');
+
+      if (lastComma > lastDot) { // A comma appears after a dot OR there is only a comma
+        // treat comma as a decimal separator. (e.g., "1.234,56" → 1234.56, "123,45" → 123.45)
+        numericString = numericString.replaceAll('.', '');
+        numericString = numericString.replaceAll(',', '.');
+      } else { // Therefore, the dot is the decimal separator.
+        numericString = numericString.replaceAll(',', '');
+      }
 
       // Parse the numeric value
       double numericValue = double.tryParse(numericString.replaceAll('-', '')) ?? 0.0;

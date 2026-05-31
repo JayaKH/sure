@@ -31,8 +31,20 @@ class Account {
 
   double get balanceAsDouble {
     try {
-      // Remove commas and any other non-numeric characters except dots and minus signs
-      final cleanedBalance = balance.replaceAll(RegExp(r'[^\d.-]'), '');
+      // Remove all non-numeric characters except digits, dot, comma, and minus sign
+      String cleanedBalance = balance.replaceAll(RegExp(r'[^\d.,\-]'), '');
+
+      int lastComma = cleanedBalance.lastIndexOf(',');
+      int lastDot = cleanedBalance.lastIndexOf('.');
+
+      if (lastComma > lastDot) { // A comma appears after a dot OR there is only a comma
+        // treat comma as a decimal separator. (e.g., "1.234,56" → 1234.56, "123,45" → 123.45)
+        cleanedBalance = cleanedBalance.replaceAll('.', '');
+        cleanedBalance = cleanedBalance.replaceAll(',', '.');
+      } else { // Therefore, the dot is the decimal separator.
+        cleanedBalance = cleanedBalance.replaceAll(',', '');
+      }
+
       return double.parse(cleanedBalance);
     } catch (e) {
       return 0.0;
